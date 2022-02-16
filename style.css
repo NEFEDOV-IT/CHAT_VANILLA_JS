@@ -35,6 +35,9 @@ body {
   font-size: 16px;
   font-weight: 400;
 }
+body.lock {
+  overflow: hidden;
+}
 
 html, body {
   height: 100%;
@@ -45,6 +48,14 @@ html, body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+header {
+  text-align: center;
+  color: #fff;
+  padding: 10px;
+  background-color: #0c0150d9;
+  text-transform: uppercase;
 }
 
 .main {
@@ -146,70 +157,75 @@ html, body {
   background: #E5E5E5;
 }
 
-.popup__preferences {
+.popup {
   position: fixed;
+  z-index: 5;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
   top: 0;
   left: 0;
   opacity: 0;
   visibility: hidden;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: all 0.8s ease 0s;
+  transition: all 0.5s ease 0s;
 }
-.popup__preferences:target {
+
+.popup.open {
   opacity: 1;
   visibility: visible;
 }
-.popup__preferences:target .popup__content {
-  transform: perspective(600px) translate(0px, 0%) rotate(0deg);
+.popup.open .popup__content {
+  transform: perspective(600px) translate(0px, 0px) rotateX(0deg);
   opacity: 1;
 }
-.popup__preferences .popup__body {
+
+.popup__area {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.popup__body {
   min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 30px 10px;
 }
-.popup__preferences .popup__content {
+.popup__body .popup__content {
   width: 273px;
   height: 319px;
   padding: 14px 16px;
   background-color: #fff;
   color: #000;
   position: relative;
-  transform: perspective(600px) translate(0px, -100%) rotate(45deg);
+  transition: all 0.5s ease 0s;
+  transform: perspective(600px) translate(0px, -100%) rotateX(45deg);
   opacity: 0;
-  transition: all 0.8s ease 0s;
 }
-.popup__preferences .popup__close {
+.popup__body .popup__content .popup__title {
+  line-height: 19px;
+  margin-bottom: 16px;
+}
+.popup__body .popup__content .popup__title .popup__close {
   position: absolute;
   top: 13px;
   right: 10px;
   color: #000;
   font-size: 20px;
+  text-decoration: none;
 }
-.popup__preferences .popup__title {
-  line-height: 19px;
-  margin-bottom: 16px;
-}
-.popup__preferences .popup__text {
+.popup__body .popup__content .popup__text {
   line-height: 19px;
   margin-bottom: 8px;
 }
-.popup__preferences .popup__input {
+.popup__body .popup__input {
   width: 207px;
-}
-
-header {
-  text-align: center;
-  color: #fff;
-  padding: 10px;
-  background-color: #0c0150d9;
-  text-transform: uppercase;
 }
 
 footer {

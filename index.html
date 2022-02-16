@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="wrapper">
-        <header class="header">
+        <header id="header" class="header">
             <div class="container">
                 Чат
             </div>
@@ -22,7 +22,7 @@
 
                         <div class="chat__info">
                             <div class="chat__preferences chat__info-all">
-                                <a href="#popup">Настройки</a>
+                                <a href="#popup" class="popup-link">Настройки</a>
                             </div>
                             <div class="chat__logout chat__info-all">
                                 <a href="#">Выйти</a>
@@ -70,13 +70,13 @@
             </div>
         </footer>
 
-        <div id="popup" class="popup__preferences">
+        <div id="popup" class="popup">
             <div class="popup__body">
                 <div class="popup__content">
                     <div class="popup__title">
                         <div class="popup__name">Настройки</div>
                         <div class="popup__name-close">
-                            <a href="" class="popup__close">x</a>
+                            <a href="#header" class="popup__close close-popup">x</a>
                         </div>
                     </div>
                     <div class="popup__text">Имя в чате</div>
@@ -88,6 +88,6 @@
             </div>
         </div>
     </div>
-<script src="main.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>

@@ -1,19 +1,17 @@
-// import {} from './view.js'
-const formChat = document.querySelector('.chat__form')
-const windowChat = document.querySelector('.chat__window')
-const template = document.querySelector('.template')
+import {UI_ELEMENTS} from './view.js'
+import { popup } from './popup.js'
 
-formChat.addEventListener('submit', (e) => {
+UI_ELEMENTS.formChat.addEventListener('submit', (e) => {
     e.preventDefault()
     const messageChat = document.querySelector('.chat__form-input').value
     showMessage(messageChat)
 })
 
 function showMessage(message) {
-    windowChat.prepend(template.content.cloneNode(true))
-    windowChat.querySelector('.chat__text').textContent = `Я: ${message}`
-    windowChat.querySelector('.chat__time').textContent = timeConverter(new Date())
-    formChat.reset()
+    UI_ELEMENTS.windowChat.prepend(UI_ELEMENTS.template.content.cloneNode(true))
+    UI_ELEMENTS.windowChat.querySelector('.chat__text').textContent = `Я: ${message}`
+    UI_ELEMENTS.windowChat.querySelector('.chat__time').textContent = timeConverter(new Date())
+    UI_ELEMENTS.formChat.reset()
 }
 
 function timeConverter(data) {
@@ -24,3 +22,5 @@ function timeConverter(data) {
     hour = (hour < 10) ? '0' + hour : hour
     return hour + ':' + min
 }
+
+popup()
