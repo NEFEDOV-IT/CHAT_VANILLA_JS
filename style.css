@@ -86,10 +86,18 @@ header {
   margin-bottom: 7px;
 }
 .chat__info .chat__info-all {
-  border: 1px solid #000;
-  padding: 6px 8px;
+  padding: 6px 0;
+  transition: all 0.15s ease 0s;
+}
+.chat__info .chat__info-all:hover {
+  background-color: #000;
+}
+.chat__info .chat__info-all:hover a {
+  color: #fff;
 }
 .chat__info .chat__info-all a {
+  border: 1px solid #000;
+  padding: 6px 8px;
   color: #000;
 }
 
@@ -145,7 +153,7 @@ header {
   background: #FFFFFF;
   border: 1px solid #000000;
   cursor: pointer;
-  transition: background ease-in 0.1s;
+  transition: background ease-in 0.15s;
 }
 .chat__form .chat__form-button::before {
   content: "-";
@@ -214,11 +222,29 @@ header {
 }
 .popup__body .popup__content .popup__title .popup__close {
   position: absolute;
-  top: 13px;
-  right: 10px;
-  color: #000;
-  font-size: 20px;
+  top: 15px;
+  right: 14px;
   text-decoration: none;
+  width: 16px;
+  height: 16px;
+  transition: opacity 0.15s ease 0s;
+}
+.popup__body .popup__content .popup__title .popup__close:hover {
+  opacity: 0.4;
+}
+.popup__body .popup__content .popup__title .popup__close:before, .popup__body .popup__content .popup__title .popup__close:after {
+  position: absolute;
+  left: 7px;
+  content: " ";
+  height: 17px;
+  width: 2px;
+  background-color: #000;
+}
+.popup__body .popup__content .popup__title .popup__close:before {
+  transform: rotate(45deg);
+}
+.popup__body .popup__content .popup__title .popup__close:after {
+  transform: rotate(-45deg);
 }
 .popup__body .popup__content .popup__text {
   line-height: 19px;
