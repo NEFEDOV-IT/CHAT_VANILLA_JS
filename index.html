@@ -22,10 +22,10 @@
 
                         <div class="chat__info">
                             <div class="chat__preferences chat__info-all">
-                                <a href="#popup" class="popup-link">Настройки</a>
+                                <a href="#popup__authorization" class="popup-link">Настройки</a>
                             </div>
                             <div class="chat__logout chat__info-all">
-                                <a href="#">Выйти</a>
+                                <a href="#" class="popup-link">Выйти</a>
                             </div>
                         </div>
 
@@ -83,6 +83,42 @@
                     <form class="chat__form popup__form" action="#">
                         <input class="chat__form-input popup__input" type="text" placeholder="Введите ник">
                         <button class="chat__form-button popup__button">></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="popup__authorization" class="popup">
+            <div class="popup__body">
+                <div class="popup__content">
+                    <div class="popup__title">
+                        <div class="popup__name">Авторизация</div>
+                        <div class="popup__name-close">
+                            <a href="#header" class="popup__close close-popup"></a>
+                        </div>
+                    </div>
+                    <form class="popup__authorization-form" action="#">
+                        <label for="authorization">Почта:</label>
+                        <input id="authorization" class="popup__authorization-input" type="email">
+                        <button class="popup__authorization-button">Получить код</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="popup__verification" class="popup">
+            <div class="popup__body">
+                <div class="popup__content">
+                    <div class="popup__title">
+                        <div class="popup__name">Подтверждение</div>
+                        <div class="popup__name-close">
+                            <a href="#header" class="popup__close close-popup"></a>
+                        </div>
+                    </div>
+                    <form class="popup__authorization-form popup__verification-form" action="#">
+                        <label for="verification">Код:</label>
+                        <input id="verification" class="popup__authorization-input popup__verification-input" type="text">
+                        <button class="popup__authorization-button popup__verification-button">Войти</button>
                     </form>
                 </div>
             </div>
