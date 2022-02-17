@@ -3,7 +3,7 @@ import { popup } from './popup.js'
 
 const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
-    ERROR_DATA: "Запрос не удался",
+    ERROR_DATA: "Запрос не удался, попробуйте ещё раз",
 }
 
 popup()
@@ -69,23 +69,20 @@ function sendEmail(mailAddress) {
         UI_ELEMENTS.authorizationInput.classList.remove('error')
     }
 
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', API.URL)
-    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8')
-    xhr.send(json)
+    fetch(API.URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: json
+    })
+    .then(response => response.json())
+    .then(verification)
+    .catch(() => alert(state.ERROR_DATA))
+}
 
-    xhr.onload = function () {
-        if (xhr.status !== 200) {
-            alert(`Ошибка ${xhr.status}`)
-        }
-
-        UI_ELEMENTS.authorizationForm.reset()
-        UI_ELEMENTS.authorization.classList.remove('open')
-        UI_ELEMENTS.verification.classList.add('open')
-        alert(`Готово, получили ${xhr.response.length} байт`)
-    }
-
-    xhr.onerror = function () {
-        alert(state.ERROR_DATA)
-    }
+function verification() {
+    UI_ELEMENTS.authorizationForm.reset()
+    UI_ELEMENTS.authorization.classList.remove('open')
+    UI_ELEMENTS.verification.classList.add('open')
 }
