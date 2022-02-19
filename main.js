@@ -3,8 +3,11 @@ import { popup } from './popup.js'
 
 const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
-    ERROR_DATA: "Запрос не удался, попробуйте ещё раз",
+    ERROR_DATA: 'Запрос не удался, попробуйте ещё раз',
+    ERROR_KEY: 'Введите корректный ключ',
 }
+
+let token
 
 popup()
 
@@ -56,10 +59,6 @@ function validateEmail(address) {
     } else sendEmail(address)
 }
 
-UI_ELEMENTS.verificationButton.addEventListener('click', () => {
-    UI_ELEMENTS.verification.classList.remove('open')
-})
-
 function sendEmail(mailAddress) {
     const isValid = UI_ELEMENTS.authorizationInput.classList.contains('error')
     const json = JSON.stringify({email: mailAddress})
@@ -72,7 +71,8 @@ function sendEmail(mailAddress) {
     fetch(API.URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json;charset=utf-8'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json;',
         },
         body: json
     })
@@ -85,4 +85,67 @@ function verification() {
     UI_ELEMENTS.authorizationForm.reset()
     UI_ELEMENTS.authorization.classList.remove('open')
     UI_ELEMENTS.verification.classList.add('open')
+}
+
+UI_ELEMENTS.verificationButton.addEventListener('click', () => {
+    token = document.cookie = UI_ELEMENTS.verificationInput.value
+    sendVerificationKey(token)
+})
+
+function sendVerificationKey(token) {
+    const isValid = UI_ELEMENTS.verificationInput.classList.contains('error')
+
+    if (isValid) {
+        UI_ELEMENTS.verificationInput.reset()
+        UI_ELEMENTS.verificationInput.classList.remove('error')
+    }
+
+    fetch(API.URL, {
+        method: 'PATH',
+        headers: {
+            'Accept': 'application/json;',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({'name': 'nick'})
+    })
+    .then(response => response.json())
+    .then(() => {
+        UI_ELEMENTS.verification.classList.remove('open')
+        UI_ELEMENTS.nickNameFormChat.classList.add('open')
+    })
+    .catch(() => {
+        token = ''
+        UI_ELEMENTS.verificationInput.classList.add('error')
+        alert(state.ERROR_KEY)
+    })
+}
+
+UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
+    const nickName = UI_ELEMENTS.nickNameInput.value
+    sendNickName(nickName, token)
+})
+
+function sendNickName(nickName, token) {
+    const isValid = UI_ELEMENTS.nickNameInput.classList.contains('error')
+
+    if (isValid) {
+        UI_ELEMENTS.nickNameInput.reset()
+        UI_ELEMENTS.nickNameInput.classList.remove('error')
+    }
+
+    fetch(API.URL, {
+        method: 'PATH',
+        headers: {
+            'Accept': 'application/json;',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 'name': nickName })
+    })
+    .then(response => response.json())
+    .catch(() => {
+        UI_ELEMENTS.nickNameInput.classList.add('error')
+        alert(state.ERROR_DATA)
+    })
 }

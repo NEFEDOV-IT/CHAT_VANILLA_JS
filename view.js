@@ -1,6 +1,9 @@
 export const UI_ELEMENTS = {
     formChat: document.querySelector('.chat__form'),
     windowChat: document.querySelector('.chat__window'),
+    nickNameInput: document.querySelector('.chat__form-input'),
+    nickNameButton: document.querySelector('.chat__form-button'),
+    nickNameFormChat: document.querySelector('#popup'),
     template: document.querySelector('.template'),
     authorizationForm: document.querySelector('.popup__authorization-form'),
     authorization: document.querySelector('#popup__authorization'),
@@ -8,6 +11,7 @@ export const UI_ELEMENTS = {
     authorizationButton: document.querySelector('.popup__authorization-button'),
     verificationButton: document.querySelector('.popup__verification-button'),
     verification: document.querySelector('#popup__verification'),
+    verificationInput: document.querySelector('#verification'),
 }
 
 export const API = {
