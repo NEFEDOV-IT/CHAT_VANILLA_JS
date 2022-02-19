@@ -1,5 +1,6 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popup } from './popup.js'
+import { setCookie, getCookie } from './cookie.js'
 
 const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
@@ -68,30 +69,17 @@ function sendEmail(mailAddress) {
         UI_ELEMENTS.authorizationInput.classList.remove('error')
     }
 
-    let xhr = new XMLHttpRequest();
-
-    xhr.open("POST", API.URL)
-    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-
-    xhr.onerror = function() {
-        alert(state.ERROR_DATA)
-    }
-
-    xhr.send(json)
-
-    xhr.onload = verification
-
-    // fetch(API.URL, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Accept': 'application/json;',
-    //     },
-    //     body: json
-    // })
-    // .then(response => response.json())
-    // .then(verification)
-    // .catch(() => alert(state.ERROR_DATA))
+    fetch(API.URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: json
+    })
+    .then(response => response.json())
+    .then(verification)
+    .catch(() => alert(state.ERROR_DATA))
 }
 
 function verification() {
@@ -101,70 +89,13 @@ function verification() {
 }
 
 UI_ELEMENTS.verificationButton.addEventListener('click', () => {
-    token = document.cookie = UI_ELEMENTS.verificationInput.value
-    sendVerificationKey(token)
+    setCookie('token', UI_ELEMENTS.verificationInput.value)
+    UI_ELEMENTS.verification.classList.remove('open')
+    UI_ELEMENTS.nickNameFormChat.classList.add('open')
 })
 
-function sendVerificationKey(token) {
-    const isValid = UI_ELEMENTS.verificationInput.classList.contains('error')
-
-    if (isValid) {
-        UI_ELEMENTS.verificationInput.reset()
-        UI_ELEMENTS.verificationInput.classList.remove('error')
-    }
-
-    let xhr = new XMLHttpRequest();
-
-    xhr.open("PATH", API.URL)
-    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8')
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-
-    xhr.onerror = function() {
-        alert(state.ERROR_KEY)
-    }
-
-    xhr.send(JSON.stringify({ name: 'nickName' }))
-
-
-    xhr.onloadend = function() {
-        if (xhr.status === 200) {
-            console.log("Успех");
-        } else {
-            console.log("Ошибка " + this.status);
-        }
-    };
-
-    // xhr.onload = function() {
-    //     if (xhr.status !== 200) {
-    //         alert( 'Ошибка: ' + xhr.status);
-    //         return
-    //     }
-    //     UI_ELEMENTS.verification.classList.remove('open')
-    //     UI_ELEMENTS.nickNameFormChat.classList.add('open')
-    // }
-
-    // fetch(API.URL, {
-    //     method: 'PATH',
-    //     headers: {
-    //         'Accept': 'application/json;',
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify({'name': 'nick'})
-    // })
-    // .then(response => response.json())
-    // .then(() => {
-    //     UI_ELEMENTS.verification.classList.remove('open')
-    //     UI_ELEMENTS.nickNameFormChat.classList.add('open')
-    // })
-    // .catch(() => {
-    //     token = ''
-    //     UI_ELEMENTS.verificationInput.classList.add('error')
-    //     alert(state.ERROR_KEY)
-    // })
-}
-
 UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
+    token = getCookie('token')
     const nickName = UI_ELEMENTS.nickNameInput.value
     sendNickName(nickName, token)
 })
@@ -177,35 +108,18 @@ function sendNickName(nickName, token) {
         UI_ELEMENTS.nickNameInput.classList.remove('error')
     }
 
-    let xhr = new XMLHttpRequest();
-
-    xhr.open("PATH", API.URL)
-    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-
-    xhr.onerror = function() {
-        alert('ПЕЧАЛЬ/БЕДА')
-    }
-
-    xhr.send(JSON.stringify({ name: nickName }))
-
-    xhr.onload(() => {
-        alert('ВСЕ ПОЛУЧИЛОСЬ!')
-        UI_ELEMENTS.nickNameFormChat.classList.remove('open')
+    fetch(API.URL, {
+        method: 'PATH',
+        headers: {
+            'Accept': 'application/json;',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 'name': nickName })
     })
-
-    // fetch(API.URL, {
-    //     method: 'PATH',
-    //     headers: {
-    //         'Accept': 'application/json;',
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify({ 'name': nickName })
-    // })
-    // .then(response => response.json())
-    // .catch(() => {
-    //     UI_ELEMENTS.nickNameInput.classList.add('error')
-    //     alert(state.ERROR_DATA)
-    // })
+    .then(response => response.json())
+    .catch(() => {
+        UI_ELEMENTS.nickNameInput.classList.add('error')
+        alert(state.ERROR_KEY)
+    })
 }
