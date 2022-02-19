@@ -123,7 +123,7 @@ function sendVerificationKey(token) {
         alert(state.ERROR_KEY)
     }
 
-    xhr.send()
+    xhr.send(JSON.stringify({ name: 'nickName' }))
 
     xhr.onload = function() {
         if (xhr.status !== 200) {
