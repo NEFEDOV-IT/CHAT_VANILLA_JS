@@ -68,17 +68,30 @@ function sendEmail(mailAddress) {
         UI_ELEMENTS.authorizationInput.classList.remove('error')
     }
 
-    fetch(API.URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json;',
-        },
-        body: json
-    })
-    .then(response => response.json())
-    .then(verification)
-    .catch(() => alert(state.ERROR_DATA))
+    let xhr = new XMLHttpRequest();
+
+    xhr.open("POST", API.URL)
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+
+    xhr.onerror = function() {
+        alert(state.ERROR_DATA)
+    }
+
+    xhr.send(json)
+
+    xhr.onload = verification
+
+    // fetch(API.URL, {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Accept': 'application/json;',
+    //     },
+    //     body: json
+    // })
+    // .then(response => response.json())
+    // .then(verification)
+    // .catch(() => alert(state.ERROR_DATA))
 }
 
 function verification() {
@@ -100,25 +113,46 @@ function sendVerificationKey(token) {
         UI_ELEMENTS.verificationInput.classList.remove('error')
     }
 
-    fetch(API.URL, {
-        method: 'PATH',
-        headers: {
-            'Accept': 'application/json;',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({'name': 'nick'})
-    })
-    .then(response => response.json())
-    .then(() => {
+    let xhr = new XMLHttpRequest();
+
+    xhr.open("PATH", API.URL)
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8')
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+
+    xhr.onerror = function() {
+        alert(state.ERROR_KEY)
+    }
+
+    xhr.send()
+
+    xhr.onload = function() {
+        if (xhr.status !== 200) {
+            alert( 'Ошибка: ' + xhr.status);
+            return
+        }
         UI_ELEMENTS.verification.classList.remove('open')
         UI_ELEMENTS.nickNameFormChat.classList.add('open')
-    })
-    .catch(() => {
-        token = ''
-        UI_ELEMENTS.verificationInput.classList.add('error')
-        alert(state.ERROR_KEY)
-    })
+    }
+
+    // fetch(API.URL, {
+    //     method: 'PATH',
+    //     headers: {
+    //         'Accept': 'application/json;',
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify({'name': 'nick'})
+    // })
+    // .then(response => response.json())
+    // .then(() => {
+    //     UI_ELEMENTS.verification.classList.remove('open')
+    //     UI_ELEMENTS.nickNameFormChat.classList.add('open')
+    // })
+    // .catch(() => {
+    //     token = ''
+    //     UI_ELEMENTS.verificationInput.classList.add('error')
+    //     alert(state.ERROR_KEY)
+    // })
 }
 
 UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
@@ -134,18 +168,35 @@ function sendNickName(nickName, token) {
         UI_ELEMENTS.nickNameInput.classList.remove('error')
     }
 
-    fetch(API.URL, {
-        method: 'PATH',
-        headers: {
-            'Accept': 'application/json;',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ 'name': nickName })
+    let xhr = new XMLHttpRequest();
+
+    xhr.open("PATH", API.URL)
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+
+    xhr.onerror = function() {
+        alert('ПЕЧАЛЬ/БЕДА')
+    }
+
+    xhr.send(JSON.stringify({ name: nickName }))
+
+    xhr.onload(() => {
+        alert('ВСЕ ПОЛУЧИЛОСЬ!')
+        UI_ELEMENTS.nickNameFormChat.classList.remove('open')
     })
-    .then(response => response.json())
-    .catch(() => {
-        UI_ELEMENTS.nickNameInput.classList.add('error')
-        alert(state.ERROR_DATA)
-    })
+
+    // fetch(API.URL, {
+    //     method: 'PATH',
+    //     headers: {
+    //         'Accept': 'application/json;',
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify({ 'name': nickName })
+    // })
+    // .then(response => response.json())
+    // .catch(() => {
+    //     UI_ELEMENTS.nickNameInput.classList.add('error')
+    //     alert(state.ERROR_DATA)
+    // })
 }

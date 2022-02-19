@@ -3,7 +3,7 @@ export const UI_ELEMENTS = {
     windowChat: document.querySelector('.chat__window'),
     nickNameInput: document.querySelector('.chat__form-input'),
     nickNameButton: document.querySelector('.chat__form-button'),
-    nickNameFormChat: document.querySelector('#popup'),
+    nickNameFormChat: document.querySelector('.popup__nickname'),
     template: document.querySelector('.template'),
     authorizationForm: document.querySelector('.popup__authorization-form'),
     authorization: document.querySelector('#popup__authorization'),
