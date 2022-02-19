@@ -125,14 +125,23 @@ function sendVerificationKey(token) {
 
     xhr.send(JSON.stringify({ name: 'nickName' }))
 
-    xhr.onload = function() {
-        if (xhr.status !== 200) {
-            alert( 'Ошибка: ' + xhr.status);
-            return
+
+    xhr.onloadend = function() {
+        if (xhr.status === 200) {
+            console.log("Успех");
+        } else {
+            console.log("Ошибка " + this.status);
         }
-        UI_ELEMENTS.verification.classList.remove('open')
-        UI_ELEMENTS.nickNameFormChat.classList.add('open')
-    }
+    };
+
+    // xhr.onload = function() {
+    //     if (xhr.status !== 200) {
+    //         alert( 'Ошибка: ' + xhr.status);
+    //         return
+    //     }
+    //     UI_ELEMENTS.verification.classList.remove('open')
+    //     UI_ELEMENTS.nickNameFormChat.classList.add('open')
+    // }
 
     // fetch(API.URL, {
     //     method: 'PATH',
