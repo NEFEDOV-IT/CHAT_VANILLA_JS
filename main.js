@@ -8,39 +8,7 @@ const state = {
     ERROR_KEY: 'Введите корректный ключ',
 }
 
-let token
-
 popup()
-
-UI_ELEMENTS.formChat.addEventListener('submit', (e) => {
-    e.preventDefault()
-    const messageChat = document.querySelector('.chat__form-input').value
-    showMessage(messageChat)
-})
-
-function showMessage(message) {
-    if (!message.trim()) return UI_ELEMENTS.formChat.reset()
-
-    const textChat = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__text')
-    const timeChatMessage = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__time')
-
-    textChat.textContent = `Я: ${message}`
-    timeChatMessage.textContent = timeConverter()
-
-    const sendMessage = UI_ELEMENTS.template.content.cloneNode(true)
-    UI_ELEMENTS.windowChat.prepend(sendMessage)
-
-    UI_ELEMENTS.formChat.reset()
-}
-
-function timeConverter() {
-    const TIME_DATA = new Date()
-    let hour = TIME_DATA.getHours()
-    let min = TIME_DATA.getMinutes()
-    min = (min < 10) ? '0' + min : min
-    hour = (hour < 10) ? '0' + hour : hour
-    return hour + ':' + min
-}
 
 UI_ELEMENTS.authorizationForm.addEventListener('submit', (e) => {
     e.preventDefault()
@@ -83,7 +51,6 @@ function sendEmail(mailAddress) {
 }
 
 function verification() {
-    UI_ELEMENTS.authorizationForm.reset()
     UI_ELEMENTS.authorization.classList.remove('open')
     UI_ELEMENTS.verification.classList.add('open')
 }
@@ -94,8 +61,9 @@ UI_ELEMENTS.verificationButton.addEventListener('click', () => {
     UI_ELEMENTS.nickNameFormChat.classList.add('open')
 })
 
-UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
-    token = getCookie('token')
+UI_ELEMENTS.nickNameButton.addEventListener('click', (e) => {
+    e.preventDefault()
+    const token = getCookie('token')
     const nickName = UI_ELEMENTS.nickNameInput.value
     sendNickName(nickName, token)
 })
@@ -118,8 +86,41 @@ function sendNickName(nickName, token) {
         body: JSON.stringify({ 'name': nickName })
     })
     .then(response => response.json())
+    .then(() => {
+        UI_ELEMENTS.nickNameFormChat.classList.remove('open')
+    })
     .catch(() => {
         UI_ELEMENTS.nickNameInput.classList.add('error')
         alert(state.ERROR_KEY)
     })
+}
+
+UI_ELEMENTS.formChat.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const messageChat = document.querySelector('.chat__form-input').value
+    showMessage(messageChat)
+})
+
+function showMessage(message) {
+    if (!message.trim()) return UI_ELEMENTS.formChat.reset()
+
+    const textChat = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__text')
+    const timeChatMessage = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__time')
+
+    textChat.textContent = `Я: ${message}`
+    timeChatMessage.textContent = timeConverter()
+
+    const sendMessage = UI_ELEMENTS.template.content.cloneNode(true)
+    UI_ELEMENTS.windowChat.prepend(sendMessage)
+
+    UI_ELEMENTS.formChat.reset()
+}
+
+function timeConverter() {
+    const TIME_DATA = new Date()
+    let hour = TIME_DATA.getHours()
+    let min = TIME_DATA.getMinutes()
+    min = (min < 10) ? '0' + min : min
+    hour = (hour < 10) ? '0' + hour : hour
+    return hour + ':' + min
 }
