@@ -104,7 +104,7 @@ UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
 })
 
 function sendNickName(nickName) {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVsaWF6X29uZUBtYWlsLnJ1IiwiaWF0IjoxNjQ1MzY4MjYwLCJleHAiOjE2NDU0NTQ2NjB9.5xRDgTw6IEZ2Agapfs27CgeDIlEAx0RJk6wWwfXmzAk'
+    const token = getCookie('token')
 
     fetch(API.URL, {
         method: 'PATH',
@@ -115,7 +115,6 @@ function sendNickName(nickName) {
         body: JSON.stringify({name: nickName})
     })
         .then(response => response.json())
-        .then(console.log)
         .then(() => {
             UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
         })
