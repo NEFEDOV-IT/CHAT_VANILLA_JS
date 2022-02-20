@@ -41,59 +41,58 @@ function sendEmail(mailAddress) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
         },
         body: json
     })
-    .then(response => response.json())
-    .then(verification)
-    .catch(() => alert(state.ERROR_DATA))
-}
-
-function verification() {
-    UI_ELEMENTS.authorization.classList.remove('open')
-    UI_ELEMENTS.verification.classList.add('open')
+        .then(response => response.json())
+        .then(() => UI_ELEMENTS.verification.classList.add('open'))
+        .catch(() => alert(state.ERROR_DATA))
 }
 
 UI_ELEMENTS.verificationButton.addEventListener('click', () => {
     setCookie('token', UI_ELEMENTS.verificationInput.value)
-    UI_ELEMENTS.verification.classList.remove('open')
     UI_ELEMENTS.nickNameFormChat.classList.add('open')
 })
 
-UI_ELEMENTS.nickNameButton.addEventListener('click', (e) => {
-    e.preventDefault()
+UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
     const token = getCookie('token')
-    const nickName = UI_ELEMENTS.nickNameInput.value
+    const nickName = document.querySelector('.nickName__popup-input').value
     sendNickName(nickName, token)
 })
 
 function sendNickName(nickName, token) {
-    const isValid = UI_ELEMENTS.nickNameInput.classList.contains('error')
-
-    if (isValid) {
-        UI_ELEMENTS.nickNameInput.reset()
-        UI_ELEMENTS.nickNameInput.classList.remove('error')
-    }
-
+    const json = JSON.stringify({name: nickName})
     fetch(API.URL, {
         method: 'PATH',
         headers: {
-            'Accept': 'application/json;',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: json
+    })
+        .then(response => response.json())
+        .catch(() => {
+            alert(state.ERROR_KEY)
+        })
+}
+
+function infoUser() {
+    const token = getCookie('token')
+    fetch(API.URL, {
+        method: 'GET',
+        headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ 'name': nickName })
     })
-    .then(response => response.json())
-    .then(() => {
-        UI_ELEMENTS.nickNameFormChat.classList.remove('open')
-    })
-    .catch(() => {
-        UI_ELEMENTS.nickNameInput.classList.add('error')
-        alert(state.ERROR_KEY)
-    })
+        .then(response => response.json())
+        .then(console.log)
+        .catch(() => {
+            alert(state.ERROR_KEY)
+        })
 }
+
+infoUser()
 
 UI_ELEMENTS.formChat.addEventListener('submit', (e) => {
     e.preventDefault()

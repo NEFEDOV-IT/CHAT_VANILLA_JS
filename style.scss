@@ -185,6 +185,29 @@ header {
   }
 }
 
+.popup__verification-form {
+  padding-top: 70px;
+  & .popup__verification-input {
+    width: 100%;
+    height: 32px;
+    border: 1px solid #000;
+    margin: 3px 0 14px 0;
+    padding: 5px;
+  }
+
+  & .popup__verification-button {
+    padding: 7px 8px;
+    background: #fff;
+    border: 1px solid #000;
+    cursor: pointer;
+    transition: all 0.15s ease 0s;
+    &:hover {
+      color: #fff;
+      background: #000;
+    }
+  }
+}
+
 .popup {
   position: fixed;
   z-index: 5;

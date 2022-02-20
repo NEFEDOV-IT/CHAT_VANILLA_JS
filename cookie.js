@@ -9,7 +9,7 @@ export function setCookie(name, value, options) {
     options = {
         path: '/',
         secure: true,
-        'max-age': 3600
+        'max-age': 360000
     }
     if (options.expires instanceof Date) {
         options.expires = options.expires.toUTCString()
