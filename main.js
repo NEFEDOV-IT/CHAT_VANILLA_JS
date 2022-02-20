@@ -1,6 +1,7 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popupClose, closePopupEsc } from './popup.js'
 import { setCookie, getCookie } from './cookie.js'
+import { apiSend} from "./api.js";
 
 popupClose()
 
@@ -42,15 +43,7 @@ function sendEmail(mailAddress) {
         UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.remove('error')
     }
 
-    fetch(API.URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: json
-    })
-        .then(response => response.json())
-        .catch(() => alert(state.ERROR_DATA))
+    apiSend(API.URL, 'POST', API.HEADERS_POST, json, state.ERROR_DATA)
 
     UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
     UI_ELEMENTS.POPUP_AUTHORIZATION.window.classList.remove('open')
@@ -66,27 +59,21 @@ UI_ELEMENTS.POPUP_VERIFICATION.button.addEventListener('click', () => {
 function sendKey() {
     const token = getCookie('token')
     const isValid = UI_ELEMENTS.POPUP_VERIFICATION.input.classList.contains('error')
+    const newUser = JSON.stringify({name: 'new User'})
+    const HEADERS_PATCH = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+    }
 
     if (isValid) {
         UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
         UI_ELEMENTS.POPUP_VERIFICATION.input.classList.remove('error')
     }
 
-    fetch(API.URL, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({name: 'new User'})
-    })
-        .then(response => response.json())
-        .catch(() => {
-            UI_ELEMENTS.POPUP_VERIFICATION.input.classList.add('error')
-            alert(state.ERROR_KEY)
-        })
-        UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
-        UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
+    apiSend(API.URL, 'PATCH', HEADERS_PATCH, newUser, state.ERROR_KEY)
+
+    UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
+    UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', () => {
@@ -119,25 +106,29 @@ function sendNickName(nickName) {
         })
 }
 
-function infoUser() {
-    const token = getCookie('token')
+if(getCookie('token')) {
+    function infoUser() {
+        const token = getCookie('token')
 
-    const URL = 'https://chat1-341409.oa.r.appspot.com/api/user/me'
-    fetch(URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-    })
-        .then(response => response.json())
-        .then(console.log)
-        .catch(() => {
-            alert(state.ERROR_KEY)
+        const URL = 'https://chat1-341409.oa.r.appspot.com/api/user/me'
+        fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
         })
+            .then(response => response.json())
+            .then(console.log)
+            .catch(() => {
+                alert(state.ERROR_KEY)
+            })
+    }
+
+    infoUser()
 }
 
-infoUser()
+
 
 UI_ELEMENTS.CHAT.form.addEventListener('submit', (e) => {
     e.preventDefault()

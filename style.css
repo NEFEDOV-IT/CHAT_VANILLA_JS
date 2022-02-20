@@ -153,19 +153,13 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FFFFFF;
   border: 1px solid #000000;
   cursor: pointer;
   transition: background ease-in 0.15s;
-}
-.chat__form .chat__form-button::before {
-  content: "-";
-  position: relative;
-  top: -1px;
-  left: 0;
+  background: url("enter.svg") no-repeat center;
 }
 .chat__form .chat__form-button:hover {
-  background: #E5E5E5;
+  background-color: #E5E5E5;
 }
 
 .popup__nickname-form {
@@ -184,19 +178,13 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FFFFFF;
   border: 1px solid #000000;
   cursor: pointer;
   transition: background ease-in 0.15s;
-}
-.popup__nickname-form .button__nickname::before {
-  content: "-";
-  position: relative;
-  top: -1px;
-  left: 0;
+  background: url("enter.svg") no-repeat center;
 }
 .popup__nickname-form .button__nickname:hover {
-  background: #E5E5E5;
+  background-color: #E5E5E5;
 }
 
 .popup__authorization-form {

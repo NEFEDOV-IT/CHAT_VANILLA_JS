@@ -28,5 +28,6 @@ export const UI_ELEMENTS = {
 
 export const API = {
     URL: 'https://chat1-341409.oa.r.appspot.com/api/user',
+    HEADERS_POST: {'Content-Type': 'application/json'},
 }
 
