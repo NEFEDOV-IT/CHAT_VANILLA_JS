@@ -1,6 +1,8 @@
 import { UI_ELEMENTS, API } from './view.js'
-import { popup } from './popup.js'
+import { popupClose, closePopupEsc } from './popup.js'
 import { setCookie, getCookie } from './cookie.js'
+
+popupClose()
 
 const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
@@ -8,33 +10,36 @@ const state = {
     ERROR_KEY: 'Введите корректный ключ',
 }
 
-popup()
+UI_ELEMENTS.CHAT.login.addEventListener('click', () => {
+    UI_ELEMENTS.POPUP_AUTHORIZATION.window.classList.add('open')
+    closePopupEsc()
+})
 
-UI_ELEMENTS.authorizationForm.addEventListener('submit', (e) => {
+UI_ELEMENTS.POPUP_AUTHORIZATION.form.addEventListener('submit', (e) => {
     e.preventDefault()
 })
 
-UI_ELEMENTS.authorizationButton.addEventListener('click', () => {
-    const mailAddress = UI_ELEMENTS.authorizationInput.value
+UI_ELEMENTS.POPUP_AUTHORIZATION.button.addEventListener('click', () => {
+    const mailAddress = UI_ELEMENTS.POPUP_AUTHORIZATION.input.value
     validateEmail(mailAddress)
 })
 
 function validateEmail(address) {
     const reg = /^([A-Za-z\d_\-.])+@([A-Za-z\d_\-.])+\.([A-Za-z]{2,4})$/
     if (!reg.test(address)) {
-        UI_ELEMENTS.authorizationForm.reset()
-        UI_ELEMENTS.authorizationInput.classList.add('error')
+        UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
+        UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.add('error')
         return alert(state.ERROR_EMAIL)
     } else sendEmail(address)
 }
 
 function sendEmail(mailAddress) {
-    const isValid = UI_ELEMENTS.authorizationInput.classList.contains('error')
+    const isValid = UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.contains('error')
     const json = JSON.stringify({email: mailAddress})
 
     if (isValid) {
-        UI_ELEMENTS.authorizationForm.reset()
-        UI_ELEMENTS.authorizationInput.classList.remove('error')
+        UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
+        UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.remove('error')
     }
 
     fetch(API.URL, {
@@ -45,32 +50,75 @@ function sendEmail(mailAddress) {
         body: json
     })
         .then(response => response.json())
-        .then(() => UI_ELEMENTS.verification.classList.add('open'))
         .catch(() => alert(state.ERROR_DATA))
+
+    UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
+    UI_ELEMENTS.POPUP_AUTHORIZATION.window.classList.remove('open')
+    UI_ELEMENTS.POPUP_VERIFICATION.window.classList.add('open')
+    closePopupEsc()
 }
 
-UI_ELEMENTS.verificationButton.addEventListener('click', () => {
-    setCookie('token', UI_ELEMENTS.verificationInput.value)
-    UI_ELEMENTS.nickNameFormChat.classList.add('open')
+UI_ELEMENTS.POPUP_VERIFICATION.button.addEventListener('click', () => {
+    setCookie('token', UI_ELEMENTS.POPUP_VERIFICATION.input.value)
+    sendKey()
 })
 
-UI_ELEMENTS.nickNameButton.addEventListener('click', () => {
+function sendKey() {
     const token = getCookie('token')
-    const nickName = document.querySelector('.nickName__popup-input').value
-    sendNickName(nickName, token)
-})
+    const isValid = UI_ELEMENTS.POPUP_VERIFICATION.input.classList.contains('error')
 
-function sendNickName(nickName, token) {
-    const json = JSON.stringify({name: nickName})
+    if (isValid) {
+        UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
+        UI_ELEMENTS.POPUP_VERIFICATION.input.classList.remove('error')
+    }
+
     fetch(API.URL, {
         method: 'PATH',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },
-        body: json
+        body: JSON.stringify({name: 'Elias'})
     })
         .then(response => response.json())
+        .then((result) => {
+            if (result.ok) {
+                UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
+                UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
+            } else alert('Error')
+        })
+        .catch(() => {
+            UI_ELEMENTS.POPUP_VERIFICATION.input.classList.add('error')
+            alert(state.ERROR_KEY)
+        })
+}
+
+UI_ELEMENTS.CHAT.preferences.addEventListener('click', () => {
+    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
+    closePopupEsc()
+})
+
+UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
+    const nickName = UI_ELEMENTS.POPUP_NICK_NAME.input.value
+    sendNickName(nickName)
+})
+
+function sendNickName(nickName) {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVsaWF6X29uZUBtYWlsLnJ1IiwiaWF0IjoxNjQ1MzY4MjYwLCJleHAiOjE2NDU0NTQ2NjB9.5xRDgTw6IEZ2Agapfs27CgeDIlEAx0RJk6wWwfXmzAk'
+
+    fetch(API.URL, {
+        method: 'PATH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({name: nickName})
+    })
+        .then(response => response.json())
+        .then(console.log)
+        .then(() => {
+            UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
+        })
         .catch(() => {
             alert(state.ERROR_KEY)
         })
@@ -78,11 +126,13 @@ function sendNickName(nickName, token) {
 
 function infoUser() {
     const token = getCookie('token')
-    fetch(API.URL, {
+
+    const URL = 'https://chat1-341409.oa.r.appspot.com/api/user/me'
+    fetch(URL, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
         },
     })
         .then(response => response.json())
@@ -94,25 +144,25 @@ function infoUser() {
 
 infoUser()
 
-UI_ELEMENTS.formChat.addEventListener('submit', (e) => {
+UI_ELEMENTS.CHAT.form.addEventListener('submit', (e) => {
     e.preventDefault()
     const messageChat = document.querySelector('.chat__form-input').value
     showMessage(messageChat)
 })
 
 function showMessage(message) {
-    if (!message.trim()) return UI_ELEMENTS.formChat.reset()
+    if (!message.trim()) return UI_ELEMENTS.CHAT.form.reset()
 
-    const textChat = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__text')
-    const timeChatMessage = UI_ELEMENTS.template.content.querySelector('.chat__my-message .chat__time')
+    const textChat = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__text')
+    const timeChatMessage = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__time')
 
     textChat.textContent = `Я: ${message}`
     timeChatMessage.textContent = timeConverter()
 
-    const sendMessage = UI_ELEMENTS.template.content.cloneNode(true)
-    UI_ELEMENTS.windowChat.prepend(sendMessage)
+    const sendMessage = UI_ELEMENTS.CHAT.template.content.cloneNode(true)
+    UI_ELEMENTS.CHAT.window.prepend(sendMessage)
 
-    UI_ELEMENTS.formChat.reset()
+    UI_ELEMENTS.CHAT.form.reset()
 }
 
 function timeConverter() {
