@@ -73,24 +73,20 @@ function sendKey() {
     }
 
     fetch(API.URL, {
-        method: 'PATH',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({name: 'Elias'})
+        body: JSON.stringify({name: 'new User'})
     })
         .then(response => response.json())
-        .then((result) => {
-            if (result.ok) {
-                UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
-                UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
-            } else alert('Error')
-        })
         .catch(() => {
             UI_ELEMENTS.POPUP_VERIFICATION.input.classList.add('error')
             alert(state.ERROR_KEY)
         })
+        UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
+        UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', () => {
@@ -107,7 +103,7 @@ function sendNickName(nickName) {
     const token = getCookie('token')
 
     fetch(API.URL, {
-        method: 'PATH',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
