@@ -4,6 +4,7 @@ export const UI_ELEMENTS = {
         form: document.querySelector('.chat__form'),
         window: document.querySelector('.chat__window'),
         template: document.querySelector('.template'),
+        templateUser: document.querySelector('.template__user'),
         preferences: document.querySelector('.popup-preferences'),
     },
     POPUP_NICK_NAME: {
@@ -28,6 +29,8 @@ export const UI_ELEMENTS = {
 
 export const API = {
     URL: 'https://chat1-341409.oa.r.appspot.com/api/user',
+    URL_GET: 'https://chat1-341409.oa.r.appspot.com/api/messages/',
+    URL_ME: 'https://chat1-341409.oa.r.appspot.com/api/user/me',
     HEADERS_POST: {'Content-Type': 'application/json'},
 }
 

@@ -1,7 +1,7 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popupClose, closePopupEsc } from './popup.js'
 import { setCookie, getCookie } from './cookie.js'
-import { apiSend} from "./api.js";
+import { apiSend, apiMessageUser } from "./api.js";
 
 popupClose()
 
@@ -9,6 +9,7 @@ const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
     ERROR_DATA: 'Запрос не удался, попробуйте ещё раз',
     ERROR_KEY: 'Введите корректный ключ',
+    ERROR_KEY_EMAIL: 'Ключ не соответствует Email, попробуйте пройти авторизацию ещё раз'
 }
 
 UI_ELEMENTS.CHAT.login.addEventListener('click', () => {
@@ -31,7 +32,10 @@ function validateEmail(address) {
         UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
         UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.add('error')
         return alert(state.ERROR_EMAIL)
-    } else sendEmail(address)
+    } else {
+        closePopupEsc()
+        sendEmail(address)
+    }
 }
 
 function sendEmail(mailAddress) {
@@ -43,12 +47,14 @@ function sendEmail(mailAddress) {
         UI_ELEMENTS.POPUP_AUTHORIZATION.input.classList.remove('error')
     }
 
-    apiSend(API.URL, 'POST', API.HEADERS_POST, json, state.ERROR_DATA)
+    apiSend(API.URL, 'POST', API.HEADERS_POST, json, closeAddVerificationPopup, state.ERROR_DATA)
+}
 
+function closeAddVerificationPopup() {
     UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
     UI_ELEMENTS.POPUP_AUTHORIZATION.window.classList.remove('open')
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.add('open')
-    closePopupEsc()
+    return closePopupEsc()
 }
 
 UI_ELEMENTS.POPUP_VERIFICATION.button.addEventListener('click', () => {
@@ -60,6 +66,7 @@ function sendKey() {
     const token = getCookie('token')
     const isValid = UI_ELEMENTS.POPUP_VERIFICATION.input.classList.contains('error')
     const newUser = JSON.stringify({name: 'new User'})
+    const input = UI_ELEMENTS.POPUP_VERIFICATION.input
     const HEADERS_PATCH = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -70,65 +77,66 @@ function sendKey() {
         UI_ELEMENTS.POPUP_VERIFICATION.input.classList.remove('error')
     }
 
-    apiSend(API.URL, 'PATCH', HEADERS_PATCH, newUser, state.ERROR_KEY)
+    apiSend(API.URL, 'PATCH', HEADERS_PATCH, newUser, closeVerificationPopup, state.ERROR_KEY, input)
+}
 
+function closeVerificationPopup() {
     UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
 }
 
-UI_ELEMENTS.CHAT.preferences.addEventListener('click', () => {
+UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
+    e.preventDefault()
     UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
     closePopupEsc()
 })
 
 UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
     const nickName = UI_ELEMENTS.POPUP_NICK_NAME.input.value
-    sendNickName(nickName)
-})
-
-function sendNickName(nickName) {
     const token = getCookie('token')
-
-    fetch(API.URL, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({name: nickName})
-    })
-        .then(response => response.json())
-        .then(() => {
-            UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
-        })
-        .catch(() => {
-            alert(state.ERROR_KEY)
-        })
-}
-
-if(getCookie('token')) {
-    function infoUser() {
-        const token = getCookie('token')
-
-        const URL = 'https://chat1-341409.oa.r.appspot.com/api/user/me'
-        fetch(URL, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then(response => response.json())
-            .then(console.log)
-            .catch(() => {
-                alert(state.ERROR_KEY)
-            })
+    const json = JSON.stringify({name: nickName})
+    const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
     }
 
-    infoUser()
+    apiSend(API.URL, 'PATCH', headers, json, closePopupNickName, state.ERROR_KEY)
+})
+
+function closePopupNickName() {
+    return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
 }
 
+if (getCookie('token')) {
+    const token = getCookie('token')
 
+    const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+    }
+
+    apiMessageUser(API.URL_GET, headers, showMessageUser)
+
+    function showMessageUser(data) {
+        try {
+            for (let i = 0; i < data.messages.length; i++) {
+                const nickName = data.messages[i].username
+                const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
+                const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
+
+                textUserChat.textContent = `${nickName}: ${data.messages[i].message}`
+                timeUserChat.textContent = timeConverter(data.messages[i].createdAt)
+                const sendUserMessage = UI_ELEMENTS.CHAT.templateUser.content.cloneNode(true)
+                UI_ELEMENTS.CHAT.window.prepend(sendUserMessage)
+            }
+        } catch(e) {
+            alert(state.ERROR_KEY_EMAIL)
+        }
+    }
+
+    apiMessageUser(API.URL_ME, headers, console.log)
+
+}
 
 UI_ELEMENTS.CHAT.form.addEventListener('submit', (e) => {
     e.preventDefault()
@@ -143,7 +151,7 @@ function showMessage(message) {
     const timeChatMessage = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__time')
 
     textChat.textContent = `Я: ${message}`
-    timeChatMessage.textContent = timeConverter()
+    timeChatMessage.textContent = timeConverter(new Date())
 
     const sendMessage = UI_ELEMENTS.CHAT.template.content.cloneNode(true)
     UI_ELEMENTS.CHAT.window.prepend(sendMessage)
@@ -151,8 +159,8 @@ function showMessage(message) {
     UI_ELEMENTS.CHAT.form.reset()
 }
 
-function timeConverter() {
-    const TIME_DATA = new Date()
+function timeConverter(data) {
+    const TIME_DATA = new Date(data)
     let hour = TIME_DATA.getHours()
     let min = TIME_DATA.getMinutes()
     min = (min < 10) ? '0' + min : min

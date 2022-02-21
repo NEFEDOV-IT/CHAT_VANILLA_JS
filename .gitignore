@@ -3,3 +3,4 @@ package-lock.json
 dist/
 .parcel-cache
 package.json
+style.css.map
