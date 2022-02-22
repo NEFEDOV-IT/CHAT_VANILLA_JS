@@ -112,12 +112,14 @@ function closePopupNickName() {
 
 const socket = new WebSocket(`${API.URL_SOCKET}${getCookie('token')}`)
 
-socket.onmessage = function(event) {
-    const data = JSON.parse(event.data)
-    const nickName = data.user.name
+socket.onopen = function () {
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data)
+        const nickName = data.user.name
 
-    if (data.user.email !== getCookie('mail')) {
-        showMessageUser(data.text, nickName)
+        if (data.user.email !== getCookie('mail')) {
+            showMessageUser(data.text, nickName)
+        }
     }
 }
 
