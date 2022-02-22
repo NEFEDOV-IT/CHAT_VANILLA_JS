@@ -23,6 +23,7 @@ UI_ELEMENTS.POPUP_AUTHORIZATION.form.addEventListener('submit', (e) => {
 
 UI_ELEMENTS.POPUP_AUTHORIZATION.button.addEventListener('click', () => {
     const mailAddress = UI_ELEMENTS.POPUP_AUTHORIZATION.input.value
+    setCookie('mail', mailAddress)
     validateEmail(mailAddress)
 })
 
@@ -101,6 +102,8 @@ UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
     }
 
     apiSend(API.URL, 'PATCH', headers, json, closePopupNickName, state.ERROR_KEY)
+
+    UI_ELEMENTS.POPUP_NICK_NAME.form.reset()
 })
 
 function closePopupNickName() {
@@ -113,7 +116,7 @@ socket.onmessage = function(event) {
     const data = JSON.parse(event.data)
     const nickName = data.user.name
 
-    if (data.user.email !== 'eliaz_one@mail.ru') {
+    if (data.user.email !== getCookie('mail')) {
         showMessageUser(data.text, nickName)
     }
 }
