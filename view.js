@@ -31,6 +31,7 @@ export const API = {
     URL: 'https://chat1-341409.oa.r.appspot.com/api/user',
     URL_GET: 'https://chat1-341409.oa.r.appspot.com/api/messages/',
     URL_ME: 'https://chat1-341409.oa.r.appspot.com/api/user/me',
+    URL_SOCKET: 'ws://chat1-341409.oa.r.appspot.com/websockets?',
     HEADERS_POST: {'Content-Type': 'application/json'},
 }
 

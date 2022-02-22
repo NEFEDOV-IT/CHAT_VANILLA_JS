@@ -16,13 +16,3 @@ export function apiSend(URL, method, headers, body, func, onError, classError) {
         alert(onError)
     })
 }
-
-export function apiMessageUser(URL, headers, func) {
-    fetch(URL, {
-        method: 'GET',
-        headers: headers,
-    })
-    .then(response => response.json())
-    .then(func)
-    .catch(alert)
-}

@@ -1,7 +1,7 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popupClose, closePopupEsc } from './popup.js'
 import { setCookie, getCookie } from './cookie.js'
-import { apiSend, apiMessageUser } from "./api.js";
+import { apiSend } from "./api.js";
 
 popupClose()
 
@@ -107,46 +107,43 @@ function closePopupNickName() {
     return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
 }
 
-if (getCookie('token')) {
-    const token = getCookie('token')
+const socket = new WebSocket(`${API.URL_SOCKET}${getCookie('token')}`)
 
-    const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data)
+    const nickName = data.user.name
+
+    if (data.user.email !== 'eliaz_one@mail.ru') {
+        showMessageUser(data.text, nickName)
     }
+}
 
-    apiMessageUser(API.URL_GET, headers, showMessageUser)
+function sendMessage(messageChat) {
+    socket.send(JSON.stringify({
+        text: `${messageChat}`,
+    }))
+}
 
-    function showMessageUser(data) {
-        try {
-            for (let i = 0; i < data.messages.length; i++) {
-                const nickName = data.messages[i].username
-                const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
-                const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
+function showMessageUser(data, nickName) {
+    const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
+    const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
 
-                textUserChat.textContent = `${nickName}: ${data.messages[i].message}`
-                timeUserChat.textContent = timeConverter(data.messages[i].createdAt)
-                const sendUserMessage = UI_ELEMENTS.CHAT.templateUser.content.cloneNode(true)
-                UI_ELEMENTS.CHAT.window.prepend(sendUserMessage)
-            }
-        } catch(e) {
-            alert(state.ERROR_KEY_EMAIL)
-        }
-    }
-
-    apiMessageUser(API.URL_ME, headers, console.log)
-
+    textUserChat.textContent = `${nickName}: ${data}`
+    timeUserChat.textContent = timeConverter(new Date())
+    const sendUserMessage = UI_ELEMENTS.CHAT.templateUser.content.cloneNode(true)
+    UI_ELEMENTS.CHAT.window.prepend(sendUserMessage)
 }
 
 UI_ELEMENTS.CHAT.form.addEventListener('submit', (e) => {
     e.preventDefault()
     const messageChat = document.querySelector('.chat__form-input').value
+    sendMessage(messageChat)
     showMessage(messageChat)
+    UI_ELEMENTS.CHAT.form.reset()
 })
 
 function showMessage(message) {
     if (!message.trim()) return UI_ELEMENTS.CHAT.form.reset()
-
     const textChat = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__text')
     const timeChatMessage = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__time')
 
@@ -155,8 +152,6 @@ function showMessage(message) {
 
     const sendMessage = UI_ELEMENTS.CHAT.template.content.cloneNode(true)
     UI_ELEMENTS.CHAT.window.prepend(sendMessage)
-
-    UI_ELEMENTS.CHAT.form.reset()
 }
 
 function timeConverter(data) {
