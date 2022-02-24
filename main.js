@@ -64,13 +64,12 @@ UI_ELEMENTS.POPUP_VERIFICATION.button.addEventListener('click', () => {
 })
 
 function sendKey() {
-    const token = getCookie('token')
     const isValid = UI_ELEMENTS.POPUP_VERIFICATION.input.classList.contains('error')
     const newUser = JSON.stringify({name: 'new User'})
     const input = UI_ELEMENTS.POPUP_VERIFICATION.input
-    const HEADERS_PATCH = {
+    const headers = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getCookie('token')}`,
     }
 
     if (isValid) {
@@ -78,7 +77,7 @@ function sendKey() {
         UI_ELEMENTS.POPUP_VERIFICATION.input.classList.remove('error')
     }
 
-    apiSend(API.URL, 'PATCH', HEADERS_PATCH, newUser, closeVerificationPopup, state.ERROR_KEY, input)
+    apiSend(API.URL, 'PATCH', headers, newUser, closeVerificationPopup, state.ERROR_KEY, input)
 }
 
 function closeVerificationPopup() {
@@ -110,16 +109,41 @@ function closePopupNickName() {
     return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
 }
 
+
 const socket = new WebSocket(`${API.URL_SOCKET}${getCookie('token')}`)
 
-socket.onopen = function () {
-    socket.onmessage = function(event) {
+if (getCookie('token')) {
+    const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getCookie('token')}`,
+    }
+
+    apiSend(API.URL_GET, 'GET', headers, null , showLastMessages)
+
+    socket.onmessage = function (event) {
         const data = JSON.parse(event.data)
         const nickName = data.user.name
 
         if (data.user.email !== getCookie('mail')) {
             showMessageUser(data.text, nickName)
         }
+    }
+}
+
+function showLastMessages(data) {
+    try {
+        for (let i = 0; i < data.messages.length - 1; i++) {
+            const nickName = data.messages[i].user.name
+            const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
+            const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
+
+            textUserChat.textContent = `${nickName}: ${data.messages[i].text}`
+            timeUserChat.textContent = timeConverter(data.messages[i].createdAt)
+            const sendUserMessage = UI_ELEMENTS.CHAT.templateUser.content.cloneNode(true)
+            UI_ELEMENTS.CHAT.window.prepend(sendUserMessage)
+        }
+    } catch (e) {
+        alert(state.ERROR_KEY_EMAIL)
     }
 }
 

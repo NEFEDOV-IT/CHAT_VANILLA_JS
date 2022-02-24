@@ -1,4 +1,4 @@
-export function apiSend(URL, method, headers, body, func, onError, classError) {
+export function apiSend(URL, method, headers, body = null, func, onError, classError) {
     fetch(URL, {
         method: method,
         headers: headers,

@@ -118,11 +118,11 @@ header {
   margin-bottom: 8px;
 }
 .chat__window .chat__send-message {
-  background: #F6F6F6;
+  background: rgba(100, 107, 210, 0.58);
 }
 .chat__window .chat__message {
   align-self: flex-start;
-  background: #E5E5E5;
+  background: rgba(100, 107, 210, 0.28);
   padding: 6px 8px;
   margin-bottom: 8px;
 }
