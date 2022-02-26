@@ -6,6 +6,7 @@ export const UI_ELEMENTS = {
         template: document.querySelector('.template'),
         templateUser: document.querySelector('.template__user'),
         preferences: document.querySelector('.popup-preferences'),
+        logout: document.querySelector('.chat__logout'),
     },
     POPUP_NICK_NAME: {
         form: document.querySelector('.popup__nickname-form'),
@@ -32,6 +33,9 @@ export const API = {
     URL_GET: 'https://chat1-341409.oa.r.appspot.com/api/messages/',
     URL_ME: 'https://chat1-341409.oa.r.appspot.com/api/user/me',
     URL_SOCKET: 'wss://chat1-341409.oa.r.appspot.com/websockets?',
-    HEADERS_POST: {'Content-Type': 'application/json'},
+    HEADERS_POST: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+    },
 }
 

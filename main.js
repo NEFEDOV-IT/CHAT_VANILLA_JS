@@ -1,6 +1,6 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popupClose, closePopupEsc } from './popup.js'
-import { setCookie, getCookie } from './cookie.js'
+import { setCookie, getCookie, deleteCookie } from './cookie.js'
 import { apiSend } from "./api.js"
 import { setLocalStorage, getLocalStorage } from "./localStorage.js"
 
@@ -10,7 +10,7 @@ const state = {
     ERROR_EMAIL: 'Введите корректный e-mail',
     ERROR_DATA: 'Запрос не удался, попробуйте ещё раз',
     ERROR_KEY: 'Введите корректный ключ',
-    ERROR_KEY_EMAIL: 'Ключ не соответствует Email, попробуйте пройти авторизацию ещё раз'
+    ERROR_AUTHORIZATION: 'Ошибка авторизации, пройдите авторизацию, нажав на кнопку "Войти"'
 }
 
 UI_ELEMENTS.CHAT.login.addEventListener('click', () => {
@@ -24,7 +24,6 @@ UI_ELEMENTS.POPUP_AUTHORIZATION.form.addEventListener('submit', (e) => {
 
 UI_ELEMENTS.POPUP_AUTHORIZATION.button.addEventListener('click', () => {
     const mailAddress = UI_ELEMENTS.POPUP_AUTHORIZATION.input.value
-    setCookie('mail', mailAddress)
     validateEmail(mailAddress)
 })
 
@@ -36,6 +35,7 @@ function validateEmail(address) {
         return alert(state.ERROR_EMAIL)
     } else {
         closePopupEsc()
+        setLocalStorage('mail', address)
         sendEmail(address)
     }
 }
@@ -71,6 +71,7 @@ function sendKey() {
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
+        'Access-Control-Allow-Origin': '*',
     }
 
     if (isValid) {
@@ -84,6 +85,8 @@ function sendKey() {
 function closeVerificationPopup() {
     UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
+    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
+    return closePopupEsc()
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
@@ -94,16 +97,17 @@ UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
 
 UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
     const nickName = UI_ELEMENTS.POPUP_NICK_NAME.input.value
-    const token = getCookie('token')
     const json = JSON.stringify({name: nickName})
     const headers = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getCookie('token')}`,
+        'Access-Control-Allow-Origin': '*',
     }
 
     apiSend(API.URL, 'PATCH', headers, json, closePopupNickName, state.ERROR_KEY)
 
     UI_ELEMENTS.POPUP_NICK_NAME.form.reset()
+    window.location.reload()
 })
 
 function closePopupNickName() {
@@ -112,10 +116,17 @@ function closePopupNickName() {
 
 const socket = new WebSocket(`${API.URL_SOCKET}${getCookie('token')}`)
 
-if (getCookie('token') && getCookie('mail')) {
+function sendMessage(messageChat) {
+    socket.send(JSON.stringify({
+        text: `${messageChat}`,
+    }))
+}
+
+if (getCookie('token') && getLocalStorage('mail')) {
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
+        'Access-Control-Allow-Origin': '*',
     }
 
     apiSend(API.URL_GET, 'GET', headers, null, showLastMessages)
@@ -124,16 +135,16 @@ if (getCookie('token') && getCookie('mail')) {
         const data = JSON.parse(event.data)
         const nickName = data.user.name
 
-        if (data.user.email !== getCookie('mail')) {
+        if (data.user.email !== getLocalStorage('mail')) {
             showMessageUser(data.text, nickName)
         }
     }
-} else alert(state.ERROR_KEY_EMAIL)
+} else alert(state.ERROR_AUTHORIZATION)
 
 UI_ELEMENTS.CHAT.window.addEventListener('scroll', showVisible)
 
 function showVisible() {
-    let isNotVisibleMessage = UI_ELEMENTS.CHAT.window.scrollHeight < UI_ELEMENTS.CHAT.window.getBoundingClientRect().bottom + -(UI_ELEMENTS.CHAT.window.scrollTop)
+    let isNotVisibleMessage = UI_ELEMENTS.CHAT.window.scrollHeight < UI_ELEMENTS.CHAT.window.getBoundingClientRect().bottom + -(UI_ELEMENTS.CHAT.window.scrollTop) + 50
     if (isNotVisibleMessage) {
         show20LastMessages()
     }
@@ -149,7 +160,7 @@ function show20LastMessages(sizeMessage = 20) {
     if (!fullDataMessages) return
 
     for (let i = fullDataMessages.length - 1; i > fullDataMessages.length - sizeMessage; i--) {
-        if (fullDataMessages[i].user.email === getCookie('mail')) {
+        if (fullDataMessages[i].user.email === getLocalStorage('mail')) {
             showMessage(fullDataMessages[i].text, fullDataMessages[i].createdAt)
         } else {
             const nickName = fullDataMessages[i].user.name
@@ -180,12 +191,6 @@ function addEndPoint() {
     return UI_ELEMENTS.CHAT.window.append(div)
 }
 
-function sendMessage(messageChat) {
-    socket.send(JSON.stringify({
-        text: `${messageChat}`,
-    }))
-}
-
 function showMessageUser(data, nickName) {
     const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
     const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
@@ -214,11 +219,16 @@ function showMessage(message, time = null) {
 
     const sendMessage = UI_ELEMENTS.CHAT.template.content.cloneNode(true)
     if (time) {
-        UI_ELEMENTS.CHAT.window.append(sendMessage)
+        return UI_ELEMENTS.CHAT.window.append(sendMessage)
     }
-    UI_ELEMENTS.CHAT.window.prepend(sendMessage)
-
+    return UI_ELEMENTS.CHAT.window.prepend(sendMessage)
 }
+
+UI_ELEMENTS.CHAT.logout.addEventListener('click', () => {
+    deleteCookie('token')
+    localStorage.clear()
+    window.location.reload()
+})
 
 function timeConverter(data) {
     const TIME_DATA = new Date(data)
