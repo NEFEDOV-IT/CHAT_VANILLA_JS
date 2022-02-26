@@ -86,9 +86,9 @@ function sendKey() {
 }
 
 function closeVerificationPopup() {
-    UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
-    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
     closePopupEsc()
+    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
+    return UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
@@ -109,7 +109,6 @@ UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
 
     UI_ELEMENTS.POPUP_NICK_NAME.form.reset()
 
-    window.location.reload()
 })
 
 function closePopupNickName() {
