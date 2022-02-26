@@ -50,10 +50,11 @@ function sendEmail(mailAddress) {
     }
 
     apiSend(API.URL, 'POST', API.HEADERS_POST, json, closeAddVerificationPopup, state.ERROR_DATA)
+
+    UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
 }
 
 function closeAddVerificationPopup() {
-    UI_ELEMENTS.POPUP_AUTHORIZATION.form.reset()
     UI_ELEMENTS.POPUP_AUTHORIZATION.window.classList.remove('open')
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.add('open')
     return closePopupEsc()
@@ -85,9 +86,9 @@ function sendKey() {
 }
 
 function closeVerificationPopup() {
-    closePopupEsc()
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
-    return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
+    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
+    closePopupEsc()
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
