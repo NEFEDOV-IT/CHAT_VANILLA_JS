@@ -25,3 +25,14 @@ export function setCookie(name, value, options) {
     }
     document.cookie = updatedCookie
 }
+
+/**
+ * function deleteCookie(name) needed for cookie test
+ */
+// function deleteCookie(name) {
+//     setCookie(name, "", {
+//         'max-age': -1
+//     })
+// }
+//
+// deleteCookie('token')

@@ -1,7 +1,8 @@
 import { UI_ELEMENTS, API } from './view.js'
 import { popupClose, closePopupEsc } from './popup.js'
 import { setCookie, getCookie } from './cookie.js'
-import { apiSend } from "./api.js";
+import { apiSend } from "./api.js"
+import { setLocalStorage, getLocalStorage } from "./localStorage.js"
 
 popupClose()
 
@@ -109,16 +110,15 @@ function closePopupNickName() {
     return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.remove('open')
 }
 
-
 const socket = new WebSocket(`${API.URL_SOCKET}${getCookie('token')}`)
 
-if (getCookie('token')) {
+if (getCookie('token') && getCookie('mail')) {
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
     }
 
-    apiSend(API.URL_GET, 'GET', headers, null , showLastMessages)
+    apiSend(API.URL_GET, 'GET', headers, null, showLastMessages)
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data)
@@ -128,23 +128,56 @@ if (getCookie('token')) {
             showMessageUser(data.text, nickName)
         }
     }
+} else alert(state.ERROR_KEY_EMAIL)
+
+UI_ELEMENTS.CHAT.window.addEventListener('scroll', showVisible)
+
+function showVisible() {
+    let isNotVisibleMessage = UI_ELEMENTS.CHAT.window.scrollHeight < UI_ELEMENTS.CHAT.window.getBoundingClientRect().bottom + -(UI_ELEMENTS.CHAT.window.scrollTop)
+    if (isNotVisibleMessage) {
+        show20LastMessages()
+    }
 }
 
 function showLastMessages(data) {
-    try {
-        for (let i = 0; i < data.messages.length - 1; i++) {
-            const nickName = data.messages[i].user.name
+    setLocalStorage('messages', data.messages)
+    show20LastMessages()
+}
+
+function show20LastMessages(sizeMessage = 20) {
+    const fullDataMessages = getLocalStorage('messages')
+    if (!fullDataMessages) return
+
+    for (let i = fullDataMessages.length - 1; i > fullDataMessages.length - sizeMessage; i--) {
+        if (fullDataMessages[i].user.email === getCookie('mail')) {
+            showMessage(fullDataMessages[i].text, fullDataMessages[i].createdAt)
+        } else {
+            const nickName = fullDataMessages[i].user.name
             const textUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__text-user')
             const timeUserChat = UI_ELEMENTS.CHAT.templateUser.content.querySelector('.chat__time-user')
 
-            textUserChat.textContent = `${nickName}: ${data.messages[i].text}`
-            timeUserChat.textContent = timeConverter(data.messages[i].createdAt)
+            textUserChat.textContent = `${nickName}: ${fullDataMessages[i].text}`
+            timeUserChat.textContent = timeConverter(fullDataMessages[i].createdAt)
             const sendUserMessage = UI_ELEMENTS.CHAT.templateUser.content.cloneNode(true)
-            UI_ELEMENTS.CHAT.window.prepend(sendUserMessage)
+            UI_ELEMENTS.CHAT.window.append(sendUserMessage)
+
+            const dataMessages = getLocalStorage('messages')
+
+            if (getLocalStorage('messages').length === 1) {
+                return addEndPoint()
+            }
+            dataMessages.pop()
+            setLocalStorage('messages', dataMessages)
         }
-    } catch (e) {
-        alert(state.ERROR_KEY_EMAIL)
     }
+}
+
+function addEndPoint() {
+    const div = document.createElement('div')
+    div.textContent = 'Вся история загружена!'
+    div.classList.add('endpoint')
+    localStorage.clear()
+    return UI_ELEMENTS.CHAT.window.append(div)
 }
 
 function sendMessage(messageChat) {
@@ -171,16 +204,20 @@ UI_ELEMENTS.CHAT.form.addEventListener('submit', (e) => {
     UI_ELEMENTS.CHAT.form.reset()
 })
 
-function showMessage(message) {
+function showMessage(message, time = null) {
     if (!message.trim()) return UI_ELEMENTS.CHAT.form.reset()
     const textChat = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__text')
     const timeChatMessage = UI_ELEMENTS.CHAT.template.content.querySelector('.chat__my-message .chat__time')
 
     textChat.textContent = `Я: ${message}`
-    timeChatMessage.textContent = timeConverter(new Date())
+    timeChatMessage.textContent = timeConverter(time || new Date())
 
     const sendMessage = UI_ELEMENTS.CHAT.template.content.cloneNode(true)
+    if (time) {
+        UI_ELEMENTS.CHAT.window.append(sendMessage)
+    }
     UI_ELEMENTS.CHAT.window.prepend(sendMessage)
+
 }
 
 function timeConverter(data) {
