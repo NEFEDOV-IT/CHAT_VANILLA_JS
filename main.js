@@ -66,12 +66,12 @@ UI_ELEMENTS.POPUP_VERIFICATION.button.addEventListener('click', () => {
 
 function sendKey() {
     const isValid = UI_ELEMENTS.POPUP_VERIFICATION.input.classList.contains('error')
-    const newUser = JSON.stringify({name: 'new User'})
-    const input = UI_ELEMENTS.POPUP_VERIFICATION.input
+    const newUser = JSON.stringify({name: 'new-name'})
+    const inputVerification = UI_ELEMENTS.POPUP_VERIFICATION.input
+
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
-        'Access-Control-Allow-Origin': '*',
     }
 
     if (isValid) {
@@ -79,14 +79,15 @@ function sendKey() {
         UI_ELEMENTS.POPUP_VERIFICATION.input.classList.remove('error')
     }
 
-    apiSend(API.URL, 'PATCH', headers, newUser, closeVerificationPopup, state.ERROR_KEY, input)
+    apiSend(API.URL, 'PATCH', headers, newUser, closeVerificationPopup, state.ERROR_KEY, inputVerification)
+
+    UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
 }
 
 function closeVerificationPopup() {
-    UI_ELEMENTS.POPUP_VERIFICATION.form.reset()
+    closePopupEsc()
     UI_ELEMENTS.POPUP_VERIFICATION.window.classList.remove('open')
-    UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
-    return closePopupEsc()
+    return UI_ELEMENTS.POPUP_NICK_NAME.window.classList.add('open')
 }
 
 UI_ELEMENTS.CHAT.preferences.addEventListener('click', (e) => {
@@ -101,12 +102,12 @@ UI_ELEMENTS.POPUP_NICK_NAME.button.addEventListener('click', () => {
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
-        'Access-Control-Allow-Origin': '*',
     }
 
     apiSend(API.URL, 'PATCH', headers, json, closePopupNickName, state.ERROR_KEY)
 
     UI_ELEMENTS.POPUP_NICK_NAME.form.reset()
+
     window.location.reload()
 })
 
@@ -126,7 +127,6 @@ if (getCookie('token') && getLocalStorage('mail')) {
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getCookie('token')}`,
-        'Access-Control-Allow-Origin': '*',
     }
 
     apiSend(API.URL_GET, 'GET', headers, null, showLastMessages)
